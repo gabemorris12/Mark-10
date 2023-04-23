@@ -1,0 +1,1 @@
+cd "C:\Users\gmbra\Downloads\Python Programs\Mark 10 Project" & "venv\scripts\activate" & python server_connection.py
