@@ -15,21 +15,25 @@ REFRESH_RATE = 125  # Samples per second (needs to match the Mark 10)
 
 ########################################################################################################################
 
+
+def error_flash(i):
+    for _ in range(i):
+        GPIO.output(37, True)
+        time.sleep(0.5)
+        GPIO.output(37, False)
+        time.sleep(0.5)
+
+
 GPIO.setmode(GPIO.BOARD)
+GPIO.setup(37, GPIO.OUT)
+error_flash(20)
+
 data = SerialConnection(SERIAL_PORT)
 GPIO.setup(data.button_num, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 client = ClientConnection(socket.AF_BLUETOOTH, socket.SOCK_STREAM, 3, name=NAME, address=ADDRESS)
 
 client.check_bluetooth_threads[-1].start()
 data.check_serial_threads[-1].start()
-
-
-def error_flash():
-    for _ in range(5):
-        GPIO.output(data.run_num, True)
-        time.sleep(0.5)
-        GPIO.output(data.run_num, False)
-        time.sleep(0.5)
 
 
 def main():
@@ -52,7 +56,7 @@ def main():
             client.check_bluetooth_threads[-1].start()
             data.check_serial_threads[-1].start()
         elif GPIO.input(data.button_num) and (not data.data_active or not client.bluetooth_active):
-            error_flash()
+            error_flash(5)
 
         time.sleep(0.05)
 
