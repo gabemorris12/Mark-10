@@ -1,8 +1,10 @@
 from serial_connection import SerialConnection, list_to_bytes
 from client_connection import ClientConnection
+from server_connection import plot_store_data
 import socket
 import RPi.GPIO as GPIO
 import time
+import serial
 
 # ADJUSTABLE PARAMETERS ################################################################################################
 
@@ -21,7 +23,17 @@ client = ClientConnection(socket.AF_BLUETOOTH, socket.SOCK_STREAM, 3, name=NAME,
 client.check_bluetooth_threads[-1].start()
 data.check_serial_threads[-1].start()
 
-try:
+
+def error_flash():
+    for _ in range(5):
+        GPIO.output(data.run_num, True)
+        time.sleep(0.5)
+        GPIO.output(data.run_num, False)
+        time.sleep(0.5)
+
+
+def main():
+
     while True:
         if GPIO.input(data.button_num) and data.data_active and client.bluetooth_active:
             data.stop_checking_serial, client.stop_checking_bluetooth = True, True
@@ -31,7 +43,7 @@ try:
             client.send(unit.encode())
 
             mark_data = data.run_test()
-            # TODO: Add plot and store method here
+            plot_store_data(REFRESH_RATE, mark_data, unit, NAME, launch_file=False)
 
             client.sendall(list_to_bytes(mark_data))
             time.sleep(0.1)
@@ -40,14 +52,14 @@ try:
             client.check_bluetooth_threads[-1].start()
             data.check_serial_threads[-1].start()
         elif GPIO.input(data.button_num) and (not data.data_active or not client.bluetooth_active):
-            for _ in range(5):
-                GPIO.output(data.run_num, True)
-                time.sleep(0.5)
-                GPIO.output(data.run_num, False)
-                time.sleep(0.5)
+            error_flash()
 
         time.sleep(0.05)
-except KeyboardInterrupt:
+
+
+try:
+    main()
+except (KeyboardInterrupt, serial.SerialException, RuntimeError, ConnectionResetError):
     data.stop_checking_serial, client.stop_checking_bluetooth = True, True
     time.sleep(0.1)
     GPIO.cleanup()

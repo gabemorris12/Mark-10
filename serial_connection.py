@@ -30,6 +30,7 @@ class SerialConnection(serial.Serial):
         """
         start = time.perf_counter()
         datas = []
+        self.reset_input_buffer()
         while time.perf_counter() - start <= 0.1:
             if self.inWaiting():
                 try:
