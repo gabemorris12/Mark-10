@@ -3,6 +3,7 @@ import serial
 import re
 import RPi.GPIO as GPIO
 import threading
+import struct
 
 
 class SerialConnection(serial.Serial):
@@ -16,7 +17,7 @@ class SerialConnection(serial.Serial):
         GPIO.setup(self.serial_num, GPIO.OUT)
         GPIO.setup(self.run_num, GPIO.OUT)
 
-        self.check_serial_threads = [threading.Thread(target=self.check_serial)]
+        self.check_serial_threads = [threading.Thread(target=self.check_serial, name='Check Serial')]
         self.data_active = False
         self.stop_checking_serial = False
 
@@ -47,9 +48,9 @@ class SerialConnection(serial.Serial):
             self.data_active = self.is_receiving_data()[0]
             GPIO.output(self.serial_num, self.data_active)
 
-        self.data_active = False
-        GPIO.output(self.serial_num, False)
-        self.check_serial_threads.append(threading.Thread(target=self.check_serial))
+        # self.data_active = False
+        # GPIO.output(self.serial_num, False)
+        self.check_serial_threads.append(threading.Thread(target=self.check_serial, name='Check Serial'))
 
     def get_unit(self):
         """
@@ -60,7 +61,7 @@ class SerialConnection(serial.Serial):
         bool_, datas = self.is_receiving_data()
         assert bool_, 'Port is not receiving data.'
 
-        unit_pattern = re.compile(r'[A-Za-z\-]+')
+        unit_pattern = re.compile(r'[A-Za-z]+')
         units = []
         for line in datas:
             match = unit_pattern.search(line)
@@ -121,3 +122,14 @@ def clean_data(data):
     """
     matches = re.findall(r'[0-9.]+', data)
     return [float(match) for match in matches]
+
+
+def list_to_bytes(data):
+    byte_list = []
+    for f in data:
+        byte_list += struct.pack('d', f)
+
+    byte_stream = bytes(byte_list)
+    data_size = len(byte_stream)
+    byte_stream = struct.pack('q', data_size) + byte_stream
+    return byte_stream
