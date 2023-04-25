@@ -17,4 +17,15 @@ load cell. Additionally, **the Mark 10 should be plugged up to the pi before pow
 ### Configuring the Serial Output
 Select the Menu button, then select the Serial/USB Settings option. Ensure that the baudrate is set to 9600.
 
-![image not found](https://github.com/gabemorris12/Mark-10/raw/master/image/f1.png)
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f1.png)
+
+Next, make sure that the Mark 10 is sending data through the USB automatically. Select Auto Output, then the Enabled 
+button.
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f2.png)
+
+Additionally, the Outputs per Sec. value must match the values seen in at the top of the `server_connectin.py` and 
+`rpi_main.py` files. Not ensuring this will result in wrong time data.
+
+Press the Data button on the Mark 10 and notice the flashing arrows in the bottom left corner of the main screen. **If
+the arrows are not flashing, then the pi will not be able to run a test, and the yellow light will be off.**
