@@ -17,4 +17,4 @@ load cell. Additionally, **the Mark 10 should be plugged up to the pi before pow
 ### Configuring the Serial Output
 Select the Menu button, then select the Serial/USB Settings option. Ensure that the baudrate is set to 9600.
 
-![image not found](https://github.com/gabemorris12/Mark-10/image/f1.png)
+![image not found](https://github.com/gabemorris12/Mark-10/raw/master/image/f1.png)
