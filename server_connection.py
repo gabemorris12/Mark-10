@@ -10,7 +10,7 @@ import warnings
 
 # ADJUSTABLE PARAMETERS ################################################################################################
 
-REFRESH_RATE = 125  # Samples per second (needs to match the Mark 10)
+REFRESH_RATE = 10  # Samples per second (needs to match the Mark 10)
 ADDRESS = ('9C:B6:D0:F7:47:E2', 4)
 
 ########################################################################################################################

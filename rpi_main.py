@@ -10,8 +10,8 @@ import serial
 
 SERIAL_PORT = '/dev/ttyUSB0'  # Port path to USB connection
 ADDRESS = ('9C:B6:D0:F7:47:E2', 4)  # Address and port that is being run on the server
-NAME = 'Joffin'  # Device name
-REFRESH_RATE = 125  # Samples per second (needs to match the Mark 10)
+NAME = 'Jeffry'  # Device name
+REFRESH_RATE = 10  # Samples per second (needs to match the Mark 10)
 
 ########################################################################################################################
 
@@ -47,7 +47,10 @@ def main():
             client.send(unit.encode())
 
             mark_data = data.run_test()
-            plot_store_data(REFRESH_RATE, mark_data, unit, NAME, launch_file=False)
+            try:
+                plot_store_data(REFRESH_RATE, mark_data, unit, NAME, launch_file=False)
+            except PermissionError:
+                pass
 
             client.sendall(list_to_bytes(mark_data))
             time.sleep(0.1)
