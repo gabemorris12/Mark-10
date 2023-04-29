@@ -26,8 +26,7 @@ blank.
 
 Select the Menu button, then select the Serial/USB Settings option. Ensure that the baudrate is set to 9600. If a value
 other than 9600 is desired, then add an argument to the serial object in the `rpi_main.py` file
-(`data = SerialConnection(SERIAL_PORT, baudrate=19200)`) and make sure that the value matches the setting of the Mark
-10.
+(`data = SerialConnection(SERIAL_PORT, baudrate=19200)`) and make sure that the value matches the setting of the Mark 10.
 
 ![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f1.png)
 
@@ -152,10 +151,10 @@ Move the cursor with the arrow keys to a line that is above `exit 0` and below `
 `/bin/bash /home/<user name>/Desktop/Mark-10-master/rpi_bash.sh &`
 
 Press CTRL+X, then "y", then enter. Now running `sudo /etc/rc.local` will run the `rpi_main.py` script, and a blinking
-blue light should be observed. Press CTRL+C to end the program. If that script executes, then the script will run at
-boot up. If the blue light begins flashing, then that means that the pi is not connected to the server through
-bluetooth. To end the script, the process for the `rpi_bash` sequence must be found and terminated. The script is being 
-run in the background, but this can be done by running the following,
+blue light should be observed. If that script executes, then the script will run at boot up. If the blue light begins
+flashing, then that means that the pi is not connected to the server through bluetooth. To end the script, the process 
+for the `rpi_bash` sequence must be found and terminated. The script is being run in the background, but this can be 
+done by running the following,
 
 `ps aux | grep rpi_bash`
 
@@ -193,3 +192,62 @@ the desired name.
 
 It may be necessary to restart bluetooth on the computer for the name to update. Ensure that the name here matches the
 name at the top of the `rpi_main.py` file.
+
+### Finding the Server's MAC Address
+
+On the computer, open up the command prompt. Making sure bluetooth is turned on, run the following command,
+
+`ipconfig /all`
+
+The computer's MAC address is the physical address under the bluetooth network heading. On the raspberry pi, making sure
+that the terminal is still in the working directory, run
+
+`nano rpi_main.py`
+
+Use the arrow keys to move to the `ADDRESS` variable declaration, and change the value of the MAC address to match that
+seen from above. Press CTRL+X, then "y", then enter.
+
+## Computer
+
+The computer must have python properly installed. Do this by navigating to
+the [python downloads page](https://www.python.org/downloads/). Download the latest installer and run it. In an
+industrial setting, IT may have to be involved in order to whitelist running python or the installer. Select custom
+installation.
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f11.png)
+
+Leave the default optional features checked. Click next. Ensure that the Add Python to environment variables is
+selected, and install python in the desired directory. It is recommended that python be stored at the root directory as
+shown below.
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f12.png)
+
+Click install. Now the installer can be deleted, and running `python --version` in the command prompt should output the
+version just installed (assuming there are no other installations of python interfering). If the windows store launches,
+then that means that python was not added to the environment variables.
+
+### Setting up the Python Environment
+
+Download the necessary files as done in the raspberry pi set-up. Consider placing the Mark-10-master folder in the 
+desktop and navigate to this working directory's position in the command prompt using `cd`. Run the following,
+
+`python -m venv venv`
+
+`venv\Scripts\activate`
+
+`pip install matplotlib`
+
+Open the `server_connection.py` file in Notepad and modify the `ADDRESS` variable to match the address from above. Now
+running `python server_connection.py` in the command prompt will launch the server, and it will begin listening for the
+raspberry pi. Bluetooth has to be turned on in order for the server to start running.
+
+Next, boot up the raspberry pi. If the blue light starts flashing then that means that the computer did not make the 
+connection automatically. Open the bluetooth settings on the computer and connect to the pi. If the Mark 10 is also 
+plugged up, the yellow light and the blue light should turn solid, and there should be a message in the server script
+indicating a connection. Now pressing the button should begin recording the data and the green light should come on. 
+There should be message saying that units have been received. Press the button again to end the test. A plot should 
+automatically pop up.
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f12.png)
+
+The data gets stored in a folder called `data` both locally to the raspberry pi and on the computer.
