@@ -26,9 +26,16 @@ def error_flash(i):
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(37, GPIO.OUT)
-error_flash(20)
+# error_flash(20)
 
-data = SerialConnection(SERIAL_PORT)
+while True:
+        try:
+            data = SerialConnection(SERIAL_PORT)
+        except serial.serialutil.SerialException:
+            error_flash(5)
+        else:
+            break
+
 GPIO.setup(data.button_num, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 client = ClientConnection(socket.AF_BLUETOOTH, socket.SOCK_STREAM, 3, name=NAME, address=ADDRESS)
 
