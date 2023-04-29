@@ -5,15 +5,15 @@ ends when the user presses the start/stop button. Once the button is pressed to 
 data to a computer, then the computer stores and shows a plot of the data. There are three lights being controlled with 
 the following usages:
 
-* Blue Light - This indicates that the raspberry pi is connected to the computer.
-* Yellow Light - This indicates that the raspberry pi is receiving data from the Mark 10.
-* Green Light - This indicates that the test data is being recorded. If flashing, then that means that the pi is booting up, or the button was pressed and the above two lights were not on.
+* Blue Light - This indicates that the raspberry pi is connected to the computer. If flashing, then that means that the pi is booting up and is not connected to the server through bluetooth.
+* Yellow Light - This indicates that the raspberry pi is receiving data from the Mark 10. If flashing, then that means that the pi was booted, but the Mark 10 is not plugged up. The Mark 10 can be powered off at boot up, but it must be at least plugged up to get past the boot up stage.
+* Green Light - This indicates that the test data is being recorded. If flashing, then that means that the button was pressed and the above two lights were not on.
 
 # Installation and Set-Up
 ## Mark 10
 The Mark 10 device must be set to units of either lbF, kgF, or kN. The other units will not work with the compressive 
 load cell. If other units are used, such as with torque load cells, the unit field in the data files/graphs will be left
-blank. Additionally, **the Mark 10 should be plugged up to the pi before powering on the pi**.
+blank.
 
 ### Configuring the Serial Output
 Select the Menu button, then select the Serial/USB Settings option. Ensure that the baudrate is set to 9600. If a value
@@ -39,6 +39,17 @@ operating system, install the 64-bit operating system shown below.
 
 ![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f3.png)
 
+The raspberry pi must be connected to Wi-Fi for this initial set-up in order to download the appropriate packages later 
+on. If there is a high level of difficulty in getting the past IT as in an industrial setting, then consider connecting 
+to a personal hot spot.
+
+Make sure that `bluez` is installed by typing in the following in the command prompt, 
+
+`sudo apt-get install bluez`
+
+This package is necessary for checking a bluetooth connection at the pi's boot-up.
+
+### Wiring
 For wiring the pi, refer to the figure below.
 
 ![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/Mark-10-Wiring.png)
@@ -48,3 +59,122 @@ the BCM numbering scheme. That is, the board pin numbers refer to the physical l
 picture for reference.
 
 ![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f4.jpeg)
+
+### Setting Up the Python Environment
+First, download all the necessary python scripts from this repository. If not familiar with git, then download and 
+extract the zipfile by navigating to this position:
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f5.png)
+
+Extracting the zipfile can be done through the pi's file system GUI. Consider placing the project into the desktop. Next,
+run the following commands in the terminal (CTRL+ALT+T) to create a virtual environment.
+
+`cd ~/Desktop/Mark-10-master`
+
+`python3 -m venv venv`
+
+`source venv/bin/activate`
+
+`pip install pyserial RPi.GPIO matplotlib`
+
+Now running `pip list` should output the following, 
+
+```angular2html
+Package             Version
+------------------- -------
+contourpy           1.0.7
+cycler              0.11.0
+fonttools           4.39.3
+importlib-resources 5.12.0
+kiwisolver          1.4.4
+matplotlib          3.7.1
+numpy               1.24.3
+packaging           23.1
+Pillow              9.5.0
+pip                 20.3.4
+pkg-resources       0.0.0
+pyparsing           3.0.9
+pyserial            3.5
+python-dateutil     2.8.2
+RPi.GPIO            0.7.1
+setuptools          44.1.1
+six                 1.16.0
+zipp                3.15.0
+```
+
+### Checking the Serial Connection
+Making sure the Mark 10 is plugged up, run the following, 
+
+`ls /dev | grep tty*`
+
+Toward the bottom of the output, there should be a `ttyUSB0` path. Ensure that this path matches that shown at the top 
+of the `rpi_main.py` script.
+
+At this point, running the `serial_light_test.py` file should be successful. Make sure that the wiring is completed from
+above, and that the virtual environment is activated still (should see "venv" to the left of the current path), and the 
+Mark 10 is plugged up, then run `python serial_light_test.py` from the terminal. The script will run for about 11 
+seconds, and pressing the Data button on the Mark 10 should toggle the yellow light on and off.
+
+### Configuring the Pi to Run at Boot-Up
+In order to run the software in a state where the raspberry pi is not tethered to a screen or keyboard, the script needs
+to be executed at the boot-up of the device. This is done by first modifying the `rpi_bash.sh` script. The script path 
+in that file needs to be modified. First, run the following,
+
+`nano rpi_bash.sh`
+
+Use the arrow keys to move the cursor and modify the path next to the `cd` command to match the working directory of 
+the project (`/home/<user name>/Desktop/Mark-10-project`). Note that the path should be in quotes if there are spaces 
+in the path string. Once finished, press CTRL+X, then "y", then enter. Then run,
+
+`chmod +x rpi_bash.sh` This makes the script executable.
+
+Now to make the script run at boot-up, the `rc.local` file must be modified. Do this by running the following,
+
+`sudo nano /etc/rc.local`
+
+Move the cursor with the arrow keys to a line that is above `exit 0` and below `fi`. Add in
+
+`/bin/bash /home/<user name>/Desktop/Mark-10-master/rpi_bash.sh &`
+
+Press CTRL+X, then "y", then enter. Now running `sudo /etc/rc.local` will run the `rpi_main.py` script, and a blinking
+green light should be observed; though, the script is not yet functional because bluetooth pairing has not been set up.
+Press CTRL+C to end the program. If that script executes, then the script will run at boot up. If the blue light begins
+flashing, then that means that the pi is not connected to the server through bluetooth. To end the script, the process
+for the `rpi_bash` sequence must be found and terminated. The script is being run in the background, but this can be 
+done by running the following,
+
+`ps aux | grep rpi_bash`
+
+Find the process's PID number in the second column, then run
+
+`sudo kill <PID number>`
+
+Additionally, if ever troubleshooting in the future, it is important that the `rpi_main.py` script be ended before 
+attempting to run it manually. Find the PID sequence by running `ps aux | grep rpi_main` and eliminate it as above.
+
+### Bluetooth Pairing
+The raspberry pi needs to be paired to the server computer before being able to run the script. Turn on bluetooth on both
+the raspberry pi and the Windows computer. Next, click on Add Device from the raspberry pi's bluetooth settings:
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f6.png)
+
+Select the desired device, then click pair:
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f7.png)
+
+Once initiated, both the raspberry pi and the computer will receive a pop-up like this:
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f8.png)
+
+Click Yes on both of them quickly before the response times out. Next, navigate to the Devices and printers screen:
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f9.png)
+
+Note, a paired device does not mean that the computer is connected. The computer must be in the connected state in order
+to successfully execute the scripts. Next, right-click on raspberrypi, then go to the Bluetooth tab and rename the pi to
+the desired name.
+
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f10.png)
+
+It may be necessary to restart bluetooth on the computer for the name to update. Ensure that the name here matches the 
+name at the top of the `rpi_main.py` file.
