@@ -5,9 +5,9 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(36, GPIO.OUT)
 
 for _ in range(10):
-    GPIO.output(37, True)
+    GPIO.output(36, True)
     sleep(0.5)
-    GPIO.output(37, False)
+    GPIO.output(36, False)
     sleep(0.5)
 
 GPIO.cleanup()
