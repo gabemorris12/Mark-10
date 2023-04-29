@@ -97,7 +97,7 @@ def plot_store_data(refresh_rate_, data_, unit_, name_, launch_file=True):
     fig, ax = plt.subplots()
     time_ = np.arange(0, len(data_)/refresh_rate_, 1/refresh_rate_)
 
-    ax.plot(time_, data_)
+    ax.plot(time_, data_, color='#db011c')
     ax.set_xlabel('Time (s)')
     ax.set_ylabel(f'Force ({unit_})')
     ax.grid()
