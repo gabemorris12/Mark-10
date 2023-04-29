@@ -248,6 +248,10 @@ indicating a connection. Now pressing the button should begin recording the data
 There should be message saying that units have been received. Press the button again to end the test. A plot should 
 automatically pop up.
 
-![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f12.png)
+![image not found](https://raw.githubusercontent.com/gabemorris12/Mark-10/master/images/f13.png)
 
-The data gets stored in a folder called `data` both locally to the raspberry pi and on the computer.
+The data gets stored in the working directory to a folder called `data` both locally to the raspberry pi and on the 
+computer. To make it easier to run the server, modify the path in the `server.bat` file by right-clicking on it in the 
+file manager and pressing edit. Now the file can be moved to the desktop and double-clicking on it will run the server.
+Running the batch file, however, may alert anti-malware software. Be sure to whitelist this process, or consult IT if
+in an industrial setting.
