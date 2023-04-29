@@ -21,14 +21,13 @@ def error_flash(pin_num, i):
     GPIO.setup(pin_num, GPIO.OUT)
 
     for _ in range(i):
-        GPIO.output(37, True)
+        GPIO.output(pin_num, True)
         time.sleep(0.5)
-        GPIO.output(37, False)
+        GPIO.output(pin_num, False)
         time.sleep(0.5)
 
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(37, GPIO.OUT)
 # error_flash(20)
 
 while True:
